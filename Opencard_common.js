@@ -1,12 +1,12 @@
 /*
-通用开卡
+请勿外传
 */
-let 
-const $ = new Env("通用开卡");
+const $ = new Env("joinCommon开卡");
 const jdCookieNode = $.isNode() ? require("./jdCookie.js") : "";
 const notify = $.isNode() ? require("./sendNotify") : "";
 let cookiesArr = [], cookie = "", message = "";
-let activityId = process.env.Common_activityid ?? "";
+let activityId = process.env.Common_activityId ?? '';
+let shareUuid = process.env.Common_shareUuid（无所谓） ?? '';
 let ownCode = null;
 let authorCodeList = [];
 if ($.isNode()) {
@@ -56,20 +56,17 @@ if ($.isNode()) {
       $.bean = 0;
       $.ADID = getUUID("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", 1);
       $.UUID = getUUID("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-      authorCodeList = [
-        //'f4718e389f8244b0b7932b27cd23360b',
-        '60ec3454bd4e44c6b39431f602161729',
-        // '99a10aa547ae425f8245479a3f6cc680',
-      ];
-      // $.authorCode = authorCodeList[random(0, authorCodeList.length)];
-      $.authorCode = ownCode ? ownCode : authorCodeList[random(0, authorCodeList.length)]
       $.authorNum = `${random(1000000, 9999999)}`;
       $.randomCode = random(1000000, 9999999);
-      $.activityId = Common_activityid;
-      $.activityShopId = "1000000904";
-      $.activityUrl = `https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/${$.authorNum}?activityId=${$.activityId}&shareUuid=${encodeURIComponent($.authorCode)}&adsource=&shareuserid4minipg=${encodeURIComponent($.secretPin)}&shopid=1000004065&lng=00.000000&lat=00.000000&sid=&un_area=`;
+	  $.shareUuid = Common_shareUuid;
+      $.activityId = Common_activityId;
+	  $.userId = "1000164941";//getMyPing的body
+	  authorCodeList = [$.shareUuid,'',];
+      // $.authorCode = authorCodeList[random(0, authorCodeList.length)];
+      $.authorCode = ownCode ? ownCode : authorCodeList[random(0, authorCodeList.length)]
+      $.activityUrl = `https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/${$.authorNum}?activityId=${$.activityId}&shareUuid=${encodeURIComponent($.authorCode)}&adsource=&shareuserid4minipg=${encodeURIComponent($.secretPin)}&shopid=${$.shopId || $.venderId || $.userId || ''}&lng=00.000000&lat=00.000000&sid=&un_area=`;
       await member();
-      await $.wait(2000);
+      await $.wait(1000);
       if ($.bean > 0) {
         message += `\n【京东账号${$.index}】${$.nickName || $.UserName} \n       └ 获得 ${$.bean} 京豆。`;
       }
@@ -104,7 +101,7 @@ async function member() {
     if ($.secretPin) {
       console.log("去助力 -> " + $.authorCode);
       // console.log(cookie)
-      await task("common/accessLogWithAD", `venderId=${$.activityShopId}&code=99&pin=${encodeURIComponent($.secretPin)}&activityId=${$.activityId}&pageUrl=${$.activityUrl}&subType=app&adSource=`, 1);
+      await task("common/accessLogWithAD", `venderId=${ $.userId || ''}&code=99&pin=${encodeURIComponent($.secretPin)}&activityId=${$.activityId}&pageUrl=${$.activityUrl}&subType=app&adSource=`, 1);
       // await task("wxActionCommon/getUserInfo", `pin=${encodeURIComponent($.secretPin)}`, 1);
       if ($.index === 1) {
         await task("joinCommon/activityContent", `activityId=${$.activityId}&pin=${encodeURIComponent($.secretPin)}&pinImg=&nick=${encodeURIComponent($.pin)}&cjyxPin=&cjhyPin=&shareUuid=${encodeURIComponent($.authorCode)}`, 0, 1);
@@ -113,9 +110,9 @@ async function member() {
       }
       $.log("关注店铺");
       await task("joinCommon/doTask", `activityId=${$.activityId}&uuid=${$.actorUuid}&pin=${encodeURIComponent($.secretPin)}&taskType=20&taskValue=`);
-      await $.wait(500);
+      await $.wait(1000);
       await task("joinCommon/doTask", `activityId=${$.activityId}&uuid=${$.actorUuid}&pin=${encodeURIComponent($.secretPin)}&taskType=23&taskValue=`);
-      await $.wait(500);
+      await $.wait(1000);
       await task("joinCommon/taskInfo", `pin=${encodeURIComponent($.secretPin)}&activityId=${$.activityId}`);
       $.log("加入店铺会员");
       if ($.openCardList) {
@@ -129,7 +126,7 @@ async function member() {
           await getShopOpenCardInfo({ venderId: `${vo.value}`, channel: "401" }, vo.value);
           // console.log($.openCardActivityId)
           await bindWithVender({ venderId: `${vo.value}`, bindByVerifyCodeFlag: 1, registerExtend: {}, writeChildFlag: 0, activityId: 2329491, channel: 401 }, vo.value);
-          // await $.wait(500);
+          await $.wait(1000);
         }
       } else {
         $.log("没有获取到对应的任务。\n");
@@ -151,7 +148,8 @@ async function member() {
       // await getToken();
       console.log('抽奖 -> ')
       await $.wait(2000)
-      await task('joinCommon/startDraw', `activityId=${$.activityId}&uuid=${$.actorUuid}&pin=${encodeURIComponent($.secretPin)}`);
+      await task('linkgame/draw', `activityId=${$.activityId}&actorUuid=${$.actorUuid}&pin=${encodeURIComponent($.secretPin)}`);
+	  await task('joinCommon/startDraw', `activityId=${$.activityId}&uuid=${$.actorUuid}&pin=${encodeURIComponent($.secretPin)}`);
       // console.log('100 -> ')
       // await getFirstLZCK()
       // await getToken();
@@ -176,6 +174,7 @@ function task(function_id, body, isCommon = 0, own = 0) {
                   $.jdActivityId = data.data.jdActivityId;
                   $.venderId = data.data.venderId;
                   $.activityType = data.data.activityType;
+				  $.shopId = res.data.shopId;
                   // console.log($.venderId)
                   break;
                 case "wxActionCommon/getUserInfo":
@@ -198,7 +197,13 @@ function task(function_id, body, isCommon = 0, own = 0) {
                   $.openCardStatus = data.data;
                   // console.log($.openCardList)
                   break;
-                case "joinCommon/startDraw":
+                case "joinCommon/doTask":
+                  console.log(data);
+                  if (data.data) {
+                    $.addScore = data.data.addScore 
+                  }
+                  break;
+				case "joinCommon/startDraw":
                   console.log(data);
                   if (data.data) {
                     $.addScore = data.data.addScore 
@@ -346,7 +351,7 @@ function getMyPing() {
       Referer: $.activityUrl,
       Cookie: cookie,
     },
-    body: `userId=${$.activityShopId}&token=${$.token}&fromType=APP&riskType=1`,
+    body: `userId=${ $.userId || ''}&token=${$.token}&fromType=APP&riskType=1`,
   };
   return new Promise((resolve) => {
     $.post(opt, (err, resp, data) => {
