@@ -6,6 +6,7 @@ const jdCookieNode = $.isNode() ? require("./jdCookie.js") : "";
 const notify = $.isNode() ? require("./sendNotify") : "";
 let cookiesArr = [], cookie = "", message = "";
 let activityId = process.env.Common_activityId ?? '';
+let shareUuid = process.env.Common_shareUuid ?? '';
 let ownCode = null;
 let authorCodeList = [];
 if ($.isNode()) {
@@ -57,7 +58,8 @@ if ($.isNode()) {
       $.UUID = getUUID("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
       $.authorNum = `${random(1000000, 9999999)}`;
       $.randomCode = random(1000000, 9999999);
-	  $.shareUuid = Common_shareUuid;
+	  $.shareUuid = shareUuid;
+	  $.activityId = activityId;
 	  $.userId = "1000164941";//getMyPing的body
 	  authorCodeList = [$.shareUuid,'',];
       // $.authorCode = authorCodeList[random(0, authorCodeList.length)];
