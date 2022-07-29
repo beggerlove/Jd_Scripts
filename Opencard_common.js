@@ -7,7 +7,6 @@ const jdCookieNode = $.isNode() ? require("./jdCookie.js") : "";
 const notify = $.isNode() ? require("./sendNotify") : "";
 let cookiesArr = [], cookie = "", message = "";
 let activityId = process.env.Common_activityid ?? "";
-let shareUuid = process.env.Common_shareUuid ?? "";
 let ownCode = null;
 let authorCodeList = [];
 if ($.isNode()) {
@@ -59,14 +58,14 @@ if ($.isNode()) {
       $.UUID = getUUID("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
       authorCodeList = [
         //'f4718e389f8244b0b7932b27cd23360b',
-        //'60ec3454bd4e44c6b39431f602161729',
+        '60ec3454bd4e44c6b39431f602161729',
         // '99a10aa547ae425f8245479a3f6cc680',
       ];
       // $.authorCode = authorCodeList[random(0, authorCodeList.length)];
       $.authorCode = ownCode ? ownCode : authorCodeList[random(0, authorCodeList.length)]
       $.authorNum = `${random(1000000, 9999999)}`;
       $.randomCode = random(1000000, 9999999);
-      $.activityId = process.env.Common_activityid;
+      $.activityId = Common_activityid;
       $.activityShopId = "1000000904";
       $.activityUrl = `https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/${$.authorNum}?activityId=${$.activityId}&shareUuid=${encodeURIComponent($.authorCode)}&adsource=&shareuserid4minipg=${encodeURIComponent($.secretPin)}&shopid=1000004065&lng=00.000000&lat=00.000000&sid=&un_area=`;
       await member();
